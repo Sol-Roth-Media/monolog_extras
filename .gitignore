@@ -1,0 +1,8 @@
+# Ignore OP files
+*.DS_Store
+
+# Ignore IDE files
+/.idea/
+/.vscode/
+*.iml
+*.code-workspace

@@ -1,0 +1,6 @@
+name: Monolog Extras
+description: Adds extra processors (and others) to use in your drupal monolog logs.
+type: module
+core_version_requirement: ^8.7.7 || ^9
+dependencies:
+  - monolog:monolog

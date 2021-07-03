@@ -1,0 +1,3 @@
+services:
+  monolog.processor.current_route:
+    class: Drupal\monolog_extras\Logger\Processor\CurrentRouteProcessor
