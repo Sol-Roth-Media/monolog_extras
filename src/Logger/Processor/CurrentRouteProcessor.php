@@ -2,18 +2,12 @@
 
 namespace Drupal\monolog_extras\Logger\Processor;
 
+use Drupal\monolog\Logger\Processor\Processor;
+
 /**
  * Class CurrentRouteProcessor.
  */
 class CurrentRouteProcessor {
-
-  /**
-   * Constructs a Default object.
-   *
-   */
-  public function __construct() {
-
-  }
 
   /**
    * {@inheritdoc}
