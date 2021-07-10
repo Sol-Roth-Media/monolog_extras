@@ -10,7 +10,6 @@ use Symfony\Component\DependencyInjection\Reference;
  * Overrides the logger.factory service with the monolog factory.
  */
 class MonologExtrasServiceProvider extends ServiceProviderBase {
-
   /**
    * {@inheritdoc}
    */
@@ -27,6 +26,13 @@ class MonologExtrasServiceProvider extends ServiceProviderBase {
       // Allow the handler to be explicitly defined elsewhere.
       if (!$container->has($handlerId)) {
         $definition = $container->register($handlerId, 'Drupal\monolog_extras\Logger\Handler\DrupalExtrasHandler');
+        $definition->addArgument(new Reference($id));
+      }
+
+      $handlerId = sprintf('monolog.handler.drupal_file.%s', preg_replace('/^logger\./', '', $id));
+      // Allow the handler to be explicitly defined elsewhere.
+      if (!$container->has($handlerId)) {
+        $definition = $container->register($handlerId, 'Drupal\monolog_extras\Logger\Handler\DrupalFileHandler');
         $definition->addArgument(new Reference($id));
       }
 

@@ -8,4 +8,6 @@ services:
     class: Drupal\monolog_extras\Logger\Processor\CurrentUserOperationsProcessor
     arguments: ['@current_user']
   monolog.handler.drupal_extras:
-    class: Drupal\monolog_extras\Logger\DrupalExtrasHandler
+    class: Drupal\monolog_extras\Logger\Handler\DrupalExtrasHandler
+  monolog.handler.drupal_file:
+    class: Drupal\monolog_extras\Logger\Handler\DrupalFileHandler

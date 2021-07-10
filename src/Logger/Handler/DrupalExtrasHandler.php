@@ -52,7 +52,7 @@ class DrupalExtrasHandler extends AbstractProcessingHandler {
   }
 
   public function mapMonologToDrupalLogger($record){
-    $context = [
+    $context = $record['context'] + [
       'channel' => $record['channel'],
       'link' => '',
       'user' => isset($record['extra']['user']) ? $record['extra']['user'] : NULL,
@@ -81,17 +81,7 @@ class DrupalExtrasHandler extends AbstractProcessingHandler {
     // @see Drupal\Core\Logger\LoggerChannel::log()
     $formatter = $this->getFormatter();
     $formatter->setJsonPrettyPrint(true);
-
-    $context = $record['context'] + [
-        'channel' => $record['channel'],
-        'link' => '',
-        'user' => isset($record['extra']['user']) ? $record['extra']['user'] : NULL,
-        'uid' => isset($record['extra']['uid']) ? $record['extra']['uid'] : 0,
-        'request_uri' => isset($record['extra']['request_uri']) ? $record['extra']['request_uri'] : '',
-        'referer' => isset($record['extra']['referer']) ? $record['extra']['referer'] : '',
-        'ip' => isset($record['extra']['ip']) ? $record['extra']['ip'] : 0,
-        'timestamp' => $record['datetime']->format('U'),
-      ];
+    $context = $this->mapMonologToDrupalLogger($record);
 
     $extras = json_encode($record['extra'], JSON_PRETTY_PRINT);
     $record['message'] .= '<br /><br /><pre>'. $extras . '</pre>';
