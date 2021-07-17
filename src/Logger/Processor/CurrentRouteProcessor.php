@@ -2,23 +2,21 @@
 
 namespace Drupal\monolog_extras\Logger\Processor;
 
-use Drupal\monolog\Logger\Processor\Processor;
-
+/**
 /**
  * Class CurrentRouteProcessor.
  */
-class CurrentRouteProcessor {
+class CurrentRouteProcessor{
 
   /**
    * {@inheritdoc}
    */
   public function __invoke(array $record) {
-
     $record['extra']['route'] = \Drupal::routeMatch()->getRouteName();
     $record['extra']['uri'] = \Drupal::request()->getRequestUri();
     $record['extra']['path'] = \Drupal::service('path.current')->getPath();
-
     return $record;
   }
+
 
 }

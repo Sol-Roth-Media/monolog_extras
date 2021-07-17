@@ -36,6 +36,14 @@ class MonologExtrasServiceProvider extends ServiceProviderBase {
         $definition->addArgument(new Reference($id));
       }
 
+
+      $handlerId = sprintf('monolog.handler.drupal_user_file.%s', preg_replace('/^logger\./', '', $id));
+      // Allow the handler to be explicitly defined elsewhere.
+      if (!$container->has($handlerId)) {
+        $definition = $container->register($handlerId, 'Drupal\monolog_extras\Logger\Handler\DrupalUserFileHandler');
+        $definition->addArgument(new Reference($id));
+      }
+
     }
   }
 

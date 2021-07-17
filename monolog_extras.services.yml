@@ -1,6 +1,4 @@
 services:
-  monolog.processor.current_route:
-    class: Drupal\monolog_extras\Logger\Processor\CurrentRouteProcessor
   monolog.processor.headers:
     class: Drupal\monolog_extras\Logger\Processor\HeadersProcessor
     arguments: ['@request_stack']
@@ -11,3 +9,10 @@ services:
     class: Drupal\monolog_extras\Logger\Handler\DrupalExtrasHandler
   monolog.handler.drupal_file:
     class: Drupal\monolog_extras\Logger\Handler\DrupalFileHandler
+  monolog.handler.drupal_user_file:
+    arguments: ['@current_user','@request_stack']
+    class: Drupal\monolog_extras\Logger\Handler\DrupalUserFileHandler
+
+  # Monolog processors.
+  monolog.processor.current_route:
+    class: Drupal\monolog_extras\Logger\Processor\CurrentRouteProcessor

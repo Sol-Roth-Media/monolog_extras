@@ -47,12 +47,12 @@ class DrupalExtrasHandler extends AbstractProcessingHandler {
   public function __construct(LoggerInterface $wrapped, $level = Logger::DEBUG, $bubble = TRUE) {
     parent::__construct($level, $bubble);
     $this->logger = $wrapped;
-    $this->eventDispatcher =\Drupal::service('event_dispatcher'); // TODO Replace with proper dependency injection.
+    //$this->eventDispatcher =\Drupal::service('event_dispatcher'); // TODO Replace with proper dependency injection.
 
   }
 
   public function mapMonologToDrupalLogger($record){
-    $context = $record['context'] + [
+    $context = [
       'channel' => $record['channel'],
       'link' => '',
       'user' => isset($record['extra']['user']) ? $record['extra']['user'] : NULL,
@@ -68,26 +68,36 @@ class DrupalExtrasHandler extends AbstractProcessingHandler {
   /**
    * {@inheritDoc}
    */
+  /**
   protected function getDefaultFormatter(): FormatterInterface
   {
     return new NormalizerFormatter('U');
   }
-
+/*
   /**
    * {@inheritdoc}
    */
   public function write(array $record): void {
     // Set up context with the data Drupal loggers expect.
     // @see Drupal\Core\Logger\LoggerChannel::log()
-    $formatter = $this->getFormatter();
-    $formatter->setJsonPrettyPrint(true);
-    $context = $this->mapMonologToDrupalLogger($record);
+
+    $context = $record['context'] + [
+        'channel' => $record['channel'],
+        'link' => '',
+        'user' => isset($record['extra']['user']) ? $record['extra']['user'] : NULL,
+        'uid' => isset($record['extra']['uid']) ? $record['extra']['uid'] : 0,
+        'request_uri' => isset($record['extra']['request_uri']) ? $record['extra']['request_uri'] : '',
+        'referer' => isset($record['extra']['referer']) ? $record['extra']['referer'] : '',
+        'ip' => isset($record['extra']['ip']) ? $record['extra']['ip'] : 0,
+        'timestamp' => $record['datetime']->format('U'),
+      ];
 
     $extras = json_encode($record['extra'], JSON_PRETTY_PRINT);
     $record['message'] .= '<br /><br /><pre>'. $extras . '</pre>';
     $level = static::$levels[$record['level']];
-    $event = new MonologExtrasDrupalLoggerEvent($level, $record, $context);
-    $this->eventDispatcher->dispatch($event);
+   // $event = new MonologExtrasDrupalLoggerEvent($level, $record, $context);
+    //$this->eventDispatcher->dispatch($event);
+    //dpm($record);
     $this->logger->log($level, $record['message'], $context);
   }
 

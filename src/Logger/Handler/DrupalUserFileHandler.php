@@ -16,16 +16,17 @@ use Monolog\Formatter\FormatterInterface;
 /**
  * Forwards logs to a Drupal logger.
  */
-class DrupalFileHandler extends AbstractProcessingHandler
-{
-
+class DrupalUserFileHandler extends AbstractProcessingHandler {
   private $logger;
+  protected $account; // Current user
+  protected $request; // The stack
+
   /**
    * Event dispatcher.
    *
    * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
    */
-  //protected $eventDispatcher;
+  protected $eventDispatcher;
 
   private static $levels = [
     Logger::DEBUG => RfcLogLevel::DEBUG,
@@ -41,6 +42,10 @@ class DrupalFileHandler extends AbstractProcessingHandler
   /**
    * Constructs a Default object.
    *
+   * @param \Drupal\Core\Session\AccountProxyInterface $account_proxy
+   *
+   * @param  RequestStack $request
+   *
    * @param \Psr\Log\LoggerInterface $wrapped
    *   The wrapped Drupal logger.
    * @param bool|int $level
@@ -48,13 +53,14 @@ class DrupalFileHandler extends AbstractProcessingHandler
    * @param bool $bubble
    *   Whether the messages that are handled can bubble up the stack or not.
    */
-  public function __construct($level = Logger::DEBUG, $bubble = TRUE)
-  {
+  public function __construct(AccountProxyInterface $account, RequestStack $request, $level = Logger::DEBUG, $bubble = TRUE) {
+    $this->account = $account;
+    $this->request = $request;
     parent::__construct($level, $bubble);
+    //$this->logger = $wrapped;
   }
 
-  public function mapMonologToDrupalLogger($record)
-  {
+  public function mapMonologToDrupalLogger($record){
     $context = $record['context'] + [
         'channel' => $record['channel'],
         'link' => '',
@@ -82,35 +88,22 @@ class DrupalFileHandler extends AbstractProcessingHandler
   /**
    * {@inheritdoc}
    */
-  public function handle(array $record): bool
-  {
-    //TODO Remove hardcoded check and add a custom method call based on channel.
-    if ($level == 4 || $level == 5 || $record['level_name'] == "WARNING" || $record['level_name'] == "NOTICE") {
-      return TRUE;
-    } else {
-      parent::handle($record);
-    }
-  }
-
-
-  /**
-   * {@inheritdoc}
-   */
-  public function write(array $record): void
-  {
-    $context = $this->mapMonologToDrupalLogger($record);
+  public function write(array $record): void {
+    // $extras = json_encode($record['extra'], JSON_PRETTY_PRINT);
+    // $record['message'] .= '<br /><br /><pre>'. $extras . '</pre>';
     $level = static::$levels[$record['level']];
+
     /** @var \Drupal\Core\File\FileSystemInterface $file_system */
     $file_system = \Drupal::service('file_system');
-    $directory = 'private://logs';
+    $directory = 'private://logs/users/'. $this->account->id();
     $file_name = 'drupal.log';
     $uri = $directory . '/' . $file_name;
     $real_path = $file_system->realpath($uri);
 
-    if (!file_exists($real_path)) { // create it if it doesn't exist.
+    if(!file_exists($real_path)){ // create it if it doesn't exist.
       $file_system->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY);
       $file_result = $file_system->saveData($record['formatted'], $uri, EXISTS_REPLACE);
-    } else { // append data to it.
+    }else{ // append data to it.
       // TODO add nice line formatter here.
       $file_result = file_put_contents(
         $real_path,
@@ -118,6 +111,7 @@ class DrupalFileHandler extends AbstractProcessingHandler
         FILE_APPEND
       );
     }
+    $this->mapMonologToDrupalLogger($record); // Set context for drupal loggers.
   }
 
 }

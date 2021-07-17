@@ -3,7 +3,6 @@
 namespace Drupal\monolog_extras\Logger\Processor;
 
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\monolog\Logger\Processor\Processor;
 
 /**
  * Class CurrentUserOperationsProcessor..
@@ -33,7 +32,6 @@ class CurrentUserOperationsProcessor {
   public function __invoke(array $record) {
     $record['extra']['uid'] = $this->accountProxy->id();
     $record['extra']['user'] = $this->accountProxy->getAccountName();
-
     return $record;
   }
 

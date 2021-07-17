@@ -11,7 +11,8 @@ class HeadersProcessor extends AbstractRequestProcessor {
   /**
    * {@inheritdoc}
    */
-  public function __invoke(array $record) {
+  public function __invoke(array $record): array
+  {
     if ($request = $this->getRequest()) {
       $record['extra']['headers'] = $request->headers->all();
     }
